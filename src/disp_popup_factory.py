@@ -67,7 +67,7 @@ class Popup(tk.Toplevel):
     def hide(self):
         self.withdraw()
 
-    def ressources_popup(root, rx, rh, x, y, type, yield, quantity):
+    def ressources_popup(root, rx, rh, x, y, type, prod, quantity):
         pass
 
 if __name__ == "__main__":
@@ -76,7 +76,7 @@ if __name__ == "__main__":
         pop.show()
 
     root = tk.Tk()
-    #root.attributes("-fullscreen", True)
+    root.attributes("-fullscreen", True) #pas cassé
     stop = tk.Button(root, text = "exit", command = root.destroy)
     spawn = tk.Button(root, text = "spawn", command = new_pop)
     stop.pack()
