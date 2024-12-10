@@ -68,6 +68,7 @@ class Popup(tk.Toplevel):
         self.withdraw()
 
     def ressources_popup(root, rx, rh, x, y, type, prod, quantity):
+    def ressources_popup(root, rx, rh, x, y, type, prod, quantity):
         pass
 
 if __name__ == "__main__":
