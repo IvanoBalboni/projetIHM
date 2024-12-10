@@ -137,6 +137,8 @@ class Map(tk.Frame):
             self.wood_menu.deiconify()
         else:
             self.wood_menu.withdraw()
+    
+    
 
     
 

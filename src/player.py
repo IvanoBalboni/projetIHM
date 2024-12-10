@@ -4,7 +4,7 @@ class Player():
     A vassal bot is still a player but his actions will be reduced
     '''
 
-    def __ini__(self):
+    def __init__(self):
         pass
 
     def bot(self):
