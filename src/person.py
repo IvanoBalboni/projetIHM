@@ -14,7 +14,7 @@ class Person: #edited 04/12/24
         self.food = food
         self.name = name
         self.alive = (age < expectancy) #replaced comparison "life < expectancy"
-        
+
     def pay(self, ammount):
         self.wealth -= ammount
 
@@ -23,7 +23,7 @@ class Person: #edited 04/12/24
 
         if self.age >= self.expectancy:
             self.alive = False
-        
+
         elif self.food > 0:
             self.food -= 1
             self.fed = 5 """person may live 5 consecutive days without food
@@ -35,11 +35,3 @@ class Person: #edited 04/12/24
 
         else:
             self.alive = False
-            
-    
-
-
-
-
-
-    

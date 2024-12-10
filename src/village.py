@@ -15,11 +15,11 @@ class Village():
         """
         persons_nb > [commoner_nb, churchman_nb, noble_nb]
         habitations> a person without habitation will lose hapiness & food FAST TODO: determine values
-        taxes      > [commoner_taxes, noble_taxes] 
+        taxes      > [commoner_taxes, noble_taxes]
         food       > price of food = persons_nb / food
         wood       > needed for new constructions
         money      > needed for construction and city actions
-                   > money taken by nobles % 
+                   > money taken by nobles %
         ressources > [food_multiplier, wood_multiplier]
         """
         #04/12/24 Suggestion:
@@ -31,7 +31,7 @@ class Village():
         self.churchman_nb    = persons_nb[1]
         self.noble_nb        = persons_nb[2]
         self.persons_nb      = self.commoner_nb + self.churchman_nb + self.noble_nb
-        
+
         self.commoner_taxes  = taxes[0]
         self.noble_taxes     = taxes[1]
 
@@ -41,7 +41,7 @@ class Village():
 
         self.food_multiplier = ressources[0]
         self.wood_multiplier = ressources[1]
-    
+
     def gen_villagers(self):
         """
         generate all the villagers
@@ -60,14 +60,8 @@ class Village():
             name       = name + " " +names[random.random(NAMES_NB)][:-1]
             expectancy  = random.random(30, 100)
 
-    
+
     def update(self):
         """
 
         """
-            
-
-        
-
-
-    

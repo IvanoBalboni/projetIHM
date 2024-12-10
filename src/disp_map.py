@@ -47,9 +47,6 @@ class Map(tk.Frame):
         self.exit_button = tk.Button(self, image=self.cancel,
             height = 30, width = 30, command = self.root.destroy)
 
-        
-
-
 
         self.canvas = tk.Canvas(self, background="black")
         #self.xsb = tk.Scrollbar(self, orient="horizontal", command=self.canvas.xview)
