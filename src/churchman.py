@@ -1,4 +1,4 @@
-import person
+import person as per
 
-class Churchman(Person):
-    
+class Churchman(per.Person):
+    pass

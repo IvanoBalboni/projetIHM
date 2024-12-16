@@ -23,13 +23,15 @@ class Person: #edited 04/12/24
 
         if self.age >= self.expectancy:
             self.alive = False
-
+            """
+            person may live 5 consecutive days without food
+            regerdless of wether or not they fasted in the past the
+            fed value is therefore being reset everytime food is consumed
+            """
         elif self.food > 0:
             self.food -= 1
-            self.fed = 5 """person may live 5 consecutive days without food
-                            regerdless of wether or not they fasted in the past
-                            the fed value is therefore being reset everytime food
-                            is consumed"""
+            self.fed = 5
+            
         elif self.fed > 0:
             self.fed -= 1
 
