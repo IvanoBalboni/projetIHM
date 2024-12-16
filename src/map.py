@@ -1,6 +1,15 @@
 import village as vil
 import random as rand
 
+TOPLEFT  = (-1, -1)
+TOP      = ( 0, -1)
+TOPRIGHT = ( 1, -1)
+LEFT     = (-1, 0 )
+RIGHT    = ( 1, 0 )
+BOTLEFT  = (-1, 1 )
+BOT      = ( 0, 1 )
+BOTRIGHT = ( 1, 1 )
+
 class Map():
     def __init__(self, seed, player_num, width, height,
         ressourcesqty=[1,3,3,1], environment_mod=[4,2,2,1]):
@@ -38,13 +47,11 @@ class Map():
                 temp = temp + ( (1<<i)<<j )
                 self.cum_weights.append(temp)
         #tiles is a matrix [[line] * column] >> tiles[0][1] >> value in line 0, column 1
+        #           list of lines
         self.tiles = []
-        #village_attribution = {villageid: playerid} a village gets a player, can change the player controlling the village
-        self.village_attribution = {}
-        #villages_list     = stores all village instances
-        self.village_list        = [None for i in range(self.player_num)]
 
-
+        #villages_dict = stores all villages with format {id: ((x,y), playerid, adress)}
+        self.village_dict = {}
 
 
     def generate(self):
@@ -52,15 +59,48 @@ class Map():
 
         rand.seed(self.seed)
 
-        self.tiles = [rand.choices( ( self.attributes_keys ), cum_weights = self.cum_weights, k = self.width) for k in range(self.height)]
+        self.tiles = [rand.choices( ( self.attributes_keys ),
+            cum_weights = self.cum_weights, k = self.width) for k in range(self.height)]
+
+
+        ratio    = self.width  / self.height
+        #number of columns to divide the map for spreading players
+        row      = int( self.player_num // ratio )
+        #number of rows to divide the map for spreading players
+        col      = int(self.player_num // row + (self.player_num%ratio != 0) )
+        x_section= self.width // col
+        y_section= self.height // row
+
+        #print(ratio, col, row, x_section, y_section)
+
+        #generates a list of spawn points in the right col x row
+        poslist  = [(rand.randint(y_section*(i%row)+1, y_section*(i%row)+y_section-2),
+                    rand.randint(x_section*(i//row)+1, x_section*(i//row)+x_section-2)
+                    )for i in range(col * row - 1)]
+        #print(poslist)
+        rand.shuffle(poslist)
 
         for i in range(self.player_num):
-            #temp = vil.Village()
-            self.village_list[i] = None
+            x, y = poslist[i][0], poslist[i][1]
+            self.village_dict[i] = ((x,y), i, vil.Village( self.get_all_neighbours(x,y) ))
+
+    def get_cell_values(self, x, y, pos=(0,0)):
+        return self.attributes[ self.tiles[x+pos[0]][y+pos[1]] ]
+
+    def get_all_neighbours(self, x, y):
+        #TODO: verif qu'il y ait pas d'inversion bizarre
+        #print(x, y)
+        out = [self.get_cell_values(x, y, TOPLEFT), self.get_cell_values(x, y, TOP), self.get_cell_values(x, y, TOPRIGHT),
+               self.get_cell_values(x, y, LEFT)   , self.get_cell_values(x, y)     , self.get_cell_values(x, y, RIGHT)   ,
+               self.get_cell_values(x, y, BOTLEFT), self.get_cell_values(x, y, BOT), self.get_cell_values(x, y, BOTRIGHT)
+               ]
+        #print(out)
+        return out
 
 
 if __name__ == "__main__":
-    test = Map(1234, 10, 10, 3)
+    test = Map(1234, 10, 100, 30)
     test.generate()
     print(test.tiles)
-    print(test.tiles[0][1])
+    print(test.tiles[2][0])
+    print(test.village_dict)

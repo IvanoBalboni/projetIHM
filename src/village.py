@@ -55,7 +55,7 @@ class Village():
         #an identical village this way by luck or if the player knows how..
         #It isn't influenced by the map so an expert can maximise their chances
         #to get very good villages by placing it on a good seed spot
-        self.seed = sum( tile[0]*5 + tile[1] for tile in self.ressources ) * self.persons_count
+        self.seed = sum( (tile[0])*5 + tile[1] for tile in self.ressources ) * self.persons_count
 
         #Stores persons with the format id : adress, in either housed or homeless
         self.housed   = {}
