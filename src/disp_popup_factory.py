@@ -1,7 +1,7 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 
-from image_bank import *
+import disp_header as disp
 
 class Popup(tk.Toplevel):
     def __init__(self, root , rw, rh ,x, y, size_x, size_y):

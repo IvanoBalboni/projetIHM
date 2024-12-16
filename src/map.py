@@ -9,7 +9,7 @@ class Map():
         player_num      = number of players, they should have 6 settles possible (before environment)
         width, height   = map size
         ressourcesqty   = 2**[]  >> weigth in level of tile for map generation
-        environment_mod = 2**mod >>  weigth in type of tile for map generation
+        environment_mod = 2**mod >> weigth in type  of tile for map generation
                                     [plain, forest, lake, mountain]
         """
         self.seed            = seed
@@ -32,7 +32,7 @@ class Map():
         temp = 0
         self.cum_weights = []
         #generates a cumulative weights array for random.choices()
-        #1<<i<<j
+        # (1<<i)<<j is the weigth of the tile
         for i in self.environment_mod:
             for j in self.ressourcesqty:
                 temp = temp + ( (1<<i)<<j )

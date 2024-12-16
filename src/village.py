@@ -1,84 +1,121 @@
-import random 
+import random
+
+import back_header as back
 
 import commoner
 import churchman
 import noble
 
-
-NAMES          = "../data/names.txt"
-FIRST_NAMES    = "../data/first-names.txt"
-NAMES_NB       = 21985
-FIRST_NAMES_NB = 4945
+#int to access the adress on different lists matching the name
+PEASANT   = 0
+ARTISAN   = 1
+CHURCHMAN = 2
+NOBLE     = 3
 
 class Village():
-    def __init__(self, persons_nb, habitations, taxes, food, wood, money, ressources):
+    def __init__(self, ressources, persons_nb=[10, 0, 0, 1], habitations=3,
+                 taxes=[0.5, 0.25, 0, 0.125], food=50, wood=50, money=100):
         """
-        persons_nb > [commoner_nb, churchman_nb, noble_nb]
-        habitations> a person without habitation will lose hapiness & food FAST TODO: determine values
-        taxes      > [peasant_taxes, ,artisan_taxes, noble_taxes]
-        food       > price of food = persons_nb / food
+        ressources > tiles the village is on and will have access to as drawn bellow
+                    [ TOPLEFT,   TOP  , TOPRIGHT ,
+                      LEFT   , VILLAGE,   RIGHT  ,
+                      BOTLEFT,   BOT  , BOTRIGHT ]
+        persons_nb > [peasant_nb, artisan_nb, churchman_nb, noble_nb]
+        habitations> a person without habitation will lose hapiness, food & expectancy quickly
+                     1 habitation can host 5 persons, a noble takes 2 places
+        taxes      > [peasant_taxes, artisan_taxes, churchman_taxes, noble_taxes]
+        food       > food stored in the village persons can buy
+                     price of food = persons_nb / food
         wood       > needed for new constructions
         money      > needed for construction and city actions
-                   > money taken by nobles %
-        ressources > [(food_multiplier, wood_multiplier),] *9
+                     money taken by nobles %
         """
-        #04/12/24 Suggestion:
-        """
-        habitations > a person without habitation will lose hapiness fast
-                    and see their life expectancy reduced
-                    No impact on food consumption"""
-        self.peasant_nb    = persons_nb[0]
-        self.artisan_nb = persons_nb[1]
-        self.churchman_nb    = persons_nb[2]
-        self.noble_nb        = persons_nb[3]
-        self.persons_nb      = self.peasany_nb + self.artisan_nb + self.churchman_nb + self.noble_nb
 
-        self.peasant_taxes  = taxes[0]
-        self.artisan_taxes = taxes[1]
-        self.noble_taxes     = taxes[2]
+        self.ressources      = ressources.copy()
+        self.persons_nb      = persons_nb.copy()
+        self.persons_count   = sum(self.persons_nb)
+
+        self.habitations     = habitations
+        self.space           = habitations * 5
+        self.hab_available   = True
+
+        self.taxes           = taxes.copy()
 
         self.food            = food
         self.wood            = wood
         self.money           = money
+        #At first only the village tile is usable, the multiplier will add up
+        #when the access to more tiles is unlocked.
+        self.food_multiplier = ressources[4][0]
+        self.wood_multiplier = ressources[4][1]
 
-        self.food_multiplier = ressources[0][0]
-        self.wood_multiplier = ressources[0][1]
+        self.ressources = ressources.copy()
 
-    def gen_villagers(self):
+        #Generates the seed based on the ressources, it is possible to get
+        #an identical village this way by luck or if the player knows how..
+        #It isn't influenced by the map so an expert can maximise their chances
+        #to get very good villages by placing it on a good seed spot
+        self.seed = sum( tile[0]*5 + tile[1] for tile in self.ressources ) * self.persons_count
+
+        #Stores persons with the format id : adress, in either housed or homeless
+        self.housed   = {}
+        self.homeless = {}
+
+
+    def generate(self):
         """
         generate all the villagers
 
         """
-        f_name       = open(NAMES)
-        f_first_name = open(FIRST_NAMES)
+        f_name       = open(back.NAMES)
+        f_first_name = open(back.FIRST_NAMES)
 
         names        = f_name.readlines()
         first_names  = f_first_name.readlines()
 
-        random.seed(self.persons_nb * self.wood_multiplier * self.food_multiplier)
+        random.seed(self.seed)
 
-        for i in range(self.artisan_nb):
-            name       = first_names[random.random(FIRST_NAMES_NB)][:-1]
-            name       = name + " " +names[random.random(NAMES_NB)][:-1]
-            expectancy  = random.random(30, 100)
-            rank = 1
-            age = random.random(15,expectancy-5)
-            commoner.Commoner(self, name, age, expectancy, i, rank)
+        #TODO: Noble
+        #generates artisans
+        for i in range(self.persons_nb[ARTISAN]):
+            name       = first_names[random.randrange( back.FIRST_NAMES_NB)][:-1]
+            name       = name + " " +names[random.randrange( back.NAMES_NB)][:-1]
+            expectancy = random.randint( 30, 100)
+            age        = random.randint( 15,expectancy-5)
+            adress     = commoner.Commoner(name, age, expectancy, i, 1)
+            if self.hab_available:
+                self.housed[i] = adress
+                self.space -= 1
+                self.hab_available = self.space > 0
+            else:
+                self.homeless[i] = adress
 
-        for j in range(i,self.peasant_nb+i):
-            name       = first_names[random.random(FIRST_NAMES_NB)][:-1]
-            name       = name + " " +names[random.random(NAMES_NB)][:-1]
-            expectancy  = random.random(30, 70)
-            rank = 0
-            age = random.random(15,expectancy-5)
-            commoner.Commoner(self,name,age,expectancy,j,rank)
+        #generates peasants
+        for j in range(self.persons_nb[ARTISAN], self.persons_nb[PEASANT] + self.persons_nb[ARTISAN]):
+            name       = first_names[random.randrange( back.FIRST_NAMES_NB)][:-1]
+            name       = name + " " +names[random.randrange( back.NAMES_NB)][:-1]
+            expectancy = random.randint( 30, 70)
+            age        = random.randint( 15,expectancy-5)
+            adress     =commoner.Commoner(name, age, expectancy, j, 0)
+            if self.hab_available:
+                self.housed[j] = adress
+                self.space -= 1
+                self.hab_available = self.space > 0
+            else:
+                self.homeless[j] = adress
+        #TODO: Noble
 
 
 
     def update(self):
         """
-        compare nb_persons to habitation and reduce mood and expectancy the an amount of persons
-        equal to the difference (target peasants in priority)
+        TODO: proper update
         """
 
-
+if __name__ == "__main__":
+    test = Village([(2,2),(2, 2),(2, 2),
+                    (2,2),(0, 2),(2, 2),
+                    (2,2),(2, 2),(2, 2)])
+    test.generate()
+    for p in test.housed.values():
+        print(p.name, p.age, p.expectancy)
