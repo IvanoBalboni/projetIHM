@@ -88,7 +88,6 @@ class Map():
         return self.attributes[ self.tiles[x+pos[0]][y+pos[1]] ]
 
     def get_all_neighbours(self, x, y):
-        #TODO: verif qu'il y ait pas d'inversion bizarre
         #print(x, y)
         out = [self.get_cell_values(x, y, TOPLEFT), self.get_cell_values(x, y, TOP), self.get_cell_values(x, y, TOPRIGHT),
                self.get_cell_values(x, y, LEFT)   , self.get_cell_values(x, y)     , self.get_cell_values(x, y, RIGHT)   ,
