@@ -37,7 +37,7 @@ class Popup(tk.Toplevel):
         self.overrideredirect(True)
         self.withdraw()
 
-        im = Image.open(CANCEL)
+        im = Image.open(disp.CANCEL)
         self.cancel = ImageTk.PhotoImage(im)
 
         self.exit_button = tk.Button(self, image=self.cancel,
@@ -67,7 +67,6 @@ class Popup(tk.Toplevel):
     def hide(self):
         self.withdraw()
 
-    def ressources_popup(root, rx, rh, x, y, type, prod, quantity):
     def ressources_popup(root, rx, rh, x, y, type, prod, quantity):
         pass
 
