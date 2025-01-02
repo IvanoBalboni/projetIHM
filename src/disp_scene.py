@@ -13,9 +13,9 @@ class Scene(tk.Frame):
 
         self.root = root
 
-        self.screen_width = self.root.winfo_screenwidth()
-        self.screen_height = self.root.winfo_screenheight()
-        self.configure(height = self.screen_height, width = self.screen_width)
+        #self.screen_width = self.root.winfo_screenwidth()
+        #self.screen_height = self.root.winfo_screenheight()
+        #self.configure(height = self.screen_height, width = self.screen_width)
 
         self.game = game
 
@@ -27,5 +27,5 @@ if __name__ == "__main__":
     root = tk.Tk()
     root.attributes("-fullscreen", True)
     g = game.Game("save")
-    Scene(root, g).pack(fill="both", expand=True)
+    Scene(root, g).pack()
     root.mainloop()

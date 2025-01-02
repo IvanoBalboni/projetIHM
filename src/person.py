@@ -16,7 +16,7 @@ class Person:
         self.alive = self.age < self.expectancy
 
     def pay(self, ammount):
-        self.wealth -= ammount
+        self.wealth -= ammount #dans le cas d'un achat.
 
     def update(self):
         self.age += 1 #person age 1 year every turn
@@ -31,9 +31,13 @@ class Person:
         elif self.food > 0:
             self.food -= 1
             self.fed = 5
+            if self.mood<5:
+                self.mood+=1
 
         elif self.fed > 0:
             self.fed -= 1
+            if self.mood > 0:
+                self.mood-=1
 
         else:
             self.alive = False

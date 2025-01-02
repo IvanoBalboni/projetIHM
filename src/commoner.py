@@ -14,3 +14,10 @@ class Commoner(per.Person):
         else:
             per.Person.__init__(self, name,age,expectancy,id, 5, 20)
             self.prod = 4
+
+    def salary(self, bonus, taxes):
+        self.wealth += (self.prod*bonus)*(1-tax[self.rank])
+     
+    def updtate(self):
+        per.Person.update(self)
+    
