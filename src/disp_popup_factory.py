@@ -18,7 +18,7 @@ class Popup(tk.Toplevel):
         persistant : the popup doesn't lock the game but will
                      stay displayed as long as it is needed
         ephemeral  : the popup will disapear the moment a click
-                     is made outside of it
+                     is made outside of it, default popup type
         """
 
         tk.Toplevel.__init__(self, root)
@@ -29,7 +29,7 @@ class Popup(tk.Toplevel):
         # place the popup to the left if not enough place to the right
         x = x - size_x if (x + size_x) > rw else x
         # place the popup above if not enough place bellow
-        y = y - size_y if (y + size_y) > rw else y
+        y = y - size_y if (y + size_y) > rh else y
         geometry = geometry + str(x) + "+" + str(y)
 
         self.geometry(geometry)
@@ -45,6 +45,14 @@ class Popup(tk.Toplevel):
 
         self.exit_button.pack(side=tk.TOP, anchor = tk.NE)
 
+        self.focus = False
+        self.type = "ephemeral"
+
+        #self.bind("<Leave>", self.switch_focus)
+        #self.bind("<Enter>", self.switch_focus)
+        #self.bind("<ButtonPress-1>", self.click_out)
+        #self.bind("<ButtonPress-3>", self.click_out)
+
 
 
     def natural_tile(self, x, y, type, territory, ressources):
@@ -53,12 +61,20 @@ class Popup(tk.Toplevel):
         displays the type, territory it belongs to, and ressources of the tile.
         it has a button opening a vassal / stranger / enemy popup if it corresponds
         """
+        titre = tk.Label(self, text= type)
+        titre.pack(side=tk.TOP)
+        self.show()
         pass
 
     def buildable_tile(self, x, y, type, territory, ressources, ):
         pass
 
-    def village_tile(self, x, y, type, territory):
+    def village_tile(self, x, y, territory):
+        titre = tk.Label(self, text="village")
+        titre.pack(side=tk.TOP)
+        self.show()
+
+    def ressources_popup(root, rx, rh, x, y, type, prod, quantity):
         pass
 
     def show(self):
@@ -66,9 +82,16 @@ class Popup(tk.Toplevel):
 
     def hide(self):
         self.withdraw()
+    
+    def switch_focus(self, e):
+        self.focus = not self.focus
+    
+    def click_out(self, e):
+        if not self.focus:
+            if self.type == "ephemeral":
+                self.destroy()
 
-    def ressources_popup(root, rx, rh, x, y, type, prod, quantity):
-        pass
+
 
 if __name__ == "__main__":
     def new_pop():

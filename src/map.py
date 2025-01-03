@@ -74,7 +74,7 @@ class Map():
         #print(ratio, col, row, x_section, y_section)
 
         #generates a list of spawn points in the right col x row
-        poslist  = [(rand.randint(y_section*(i%row)+1, y_section*(i%row)+y_section-2),
+        poslist  = [(rand.randint(x_section*(i%row)+1, x_section*(i%row)+x_section-2),
                     rand.randint(x_section*(i//row)+1, x_section*(i//row)+x_section-2)
                     )for i in range(col * row - 1)]
         #print(poslist)
