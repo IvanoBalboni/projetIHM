@@ -83,6 +83,7 @@ class Map():
         for i in range(self.player_num):
             x, y = poslist[i][0], poslist[i][1]
             self.village_dict[i] = ((x,y), i, vil.Village( self.get_all_neighbours(x,y) ))
+            self.village_dict[i][2].generate()
 
     def get_cell_values(self, x, y, pos=(0,0)):
         return self.attributes[ self.tiles[x+pos[0]][y+pos[1]] ]

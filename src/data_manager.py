@@ -6,7 +6,8 @@ class Data:
     def __init__(self, file):
         #TODO: mieux avec settings
         self.file   = file
-        self.map    = map.Map(727, 5, 100, 30)
+        self.seed = 727
+        self.map  = map.Map(self.seed, 5, 100, 30)
         self.map.generate()
         self.events = events.Events()
         self.pf     = pf.Player_factory([self.map.village_dict[i][0] for i in range(5)],

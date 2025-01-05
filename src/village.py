@@ -80,7 +80,7 @@ class Village():
             name       = name + " " +names[random.randrange( back.NAMES_NB)][:-1]
             expectancy = random.randint( 50, 100)
             age        = random.randint( 15,expectancy-5)
-            adress     = noble.Noble(name, age, expectancy, i, 5)
+            adress     = noble.Noble(name, age, expectancy, i)
             if self.hab_available and self.space >= 2:
                 self.housed[i] = adress
                 self.space -= 2
@@ -89,7 +89,7 @@ class Village():
                 self.homeless[i] = adress
 
         #generates artisans
-        for i in range(self.persons_nb[NOBLE]*2, self.persons[NOBLE] + self.persons_nb[ARTISAN]):
+        for i in range(self.persons_nb[NOBLE]*2, self.persons_nb[NOBLE] + self.persons_nb[ARTISAN]):
             name       = first_names[random.randrange( back.FIRST_NAMES_NB)][:-1]
             name       = name + " " +names[random.randrange( back.NAMES_NB)][:-1]
             expectancy = random.randint( 30, 100)
@@ -103,7 +103,7 @@ class Village():
                 self.homeless[i] = adress
 
         #generates peasants
-        for j in range(self.persons[NOBLE]*2 + self.persons_nb[ARTISAN], self.persons[NOBLE]*2 + self.persons_nb[PEASANT] + self.persons_nb[ARTISAN]):
+        for j in range(self.persons_nb[NOBLE]*2 + self.persons_nb[ARTISAN], self.persons_nb[NOBLE]*2 + self.persons_nb[PEASANT] + self.persons_nb[ARTISAN]):
             name       = first_names[random.randrange( back.FIRST_NAMES_NB)][:-1]
             name       = name + " " +names[random.randrange( back.NAMES_NB)][:-1]
             expectancy = random.randint( 30, 70)
@@ -122,9 +122,10 @@ class Village():
         """
         TODO: revoir homeless comm taxes + housed
         """
+        print("bob")
         self.hab_available = self.space > 0
         commoner_taxes = 0
-        nb_nobles = persons_nb[NOBLE]
+        nb_nobles = self.persons_nb[NOBLE]
         i=len(self.housed)
         bonus = 1 #will vary based on churchmen's gifts
         noble_list = []
@@ -150,8 +151,8 @@ class Village():
                         mood+=1
             else:
                 if p.__class__.__name__ == "Commoner":
-                    p.salary(p,bonus,[taxes[0]/2,taxes[1]/2]) #reduced taxes if homeless
-                    commoner_taxes += (p.prod*bonus)*taxes[self.rank]/2
+                    p.salary(p,bonus,[self.taxes[0]/2,self.taxes[1]/2]) #reduced taxes if homeless
+                    commoner_taxes += (p.prod*bonus)*self.taxes[p.rank]/2
                     if p.mood > 2:
                         p.mood -= 1
                     if p.expectancy > 50:
@@ -160,13 +161,13 @@ class Village():
                         p.food += 1
                         p.pay(food_cost)
                     p.update(p)
-                elif p.__class__.__name__ == "Noble":
+                elif p.__class__.__name__ == "Artisan":
                     noble_list+=[p]
                     if p.mood > 0:
                         p.mood -= 1
                     if p.expectancy > 60:
                         p.expectancy -= 5
-                    if food_cost < P.wealth and p.food == 0:
+                    if food_cost < p.wealth and p.food == 0:
                         food += 1
                         p.pay(food_cost)
                     p.update()
@@ -174,12 +175,15 @@ class Village():
         for p in self.housed: #housed commoner taxes
             if p.__class__.__name__ == "Commoner":
                 p.salary(bonus,self.taxes)
-                commoner_taxes += (p.prod*bonus)*taxes[self.rank]
+                commoner_taxes += (p.prod*bonus)*self.persons_counttaxes[p.rank]
                 p.update()
+                self.money += 2
+                self.wood += self.wood_multiplier
+                self.food += self.food_multiplier
             elif p.__class__.__name__ == "Noble":
-                noble_list += [p]
+                noble_list += [p]#does nothin
             elif p.__class__.__name__ == "Churchman":
-                churchman_list += [p]
+                churchman_list += [p]#does nothin
 
 
 

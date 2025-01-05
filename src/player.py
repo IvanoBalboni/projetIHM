@@ -32,6 +32,9 @@ class Player():
     def gain_territory(self, territory):
         self.territory.append(territory)
     
+    def pay(self, ammount):
+        self.ressources[0] -= ammount
+    
     def __str__(self):
         ressources = "money: " + str(self.ressources[0]) + " food: " + str(self.ressources[1]) + " wood: " + str(self.ressources[2])
         out = ressources + " name: "+ self.name + " type: " + self.role

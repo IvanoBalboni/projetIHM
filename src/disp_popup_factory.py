@@ -1,6 +1,7 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 
+import village as vil
 import disp_header as disp
 
 class Popup(tk.Toplevel):
@@ -21,6 +22,8 @@ class Popup(tk.Toplevel):
                      is made outside of it, default popup type
         """
 
+        self.root = root
+
         tk.Toplevel.__init__(self, root)
         if size_x > rw or size_y > rh :
             raise Exception("Popup : popup is bigger then root window.")
@@ -30,6 +33,8 @@ class Popup(tk.Toplevel):
         self.x = x - size_x if (x + size_x) > rw else x
         # place the popup above if not enough place bellow
         self.y = y - size_y if (y + size_y) > rh else y
+
+        self.size_x, self.size_y = size_x, size_y
 
         
 
@@ -60,32 +65,126 @@ class Popup(tk.Toplevel):
 
 
 
-    def natural_tile(self, type, ressources, territory):
+    def natural_tile(self, type, pos, territory):
         """
         ephemeral
         displays the type, territory it belongs to, and ressources of the tile.
         it has a button opening a vassal / stranger / enemy popup if it corresponds
         """
+        self.pos = pos
         titre = tk.Label(self, text= type)
         titre.pack(side=tk.TOP)
         tertext = "territory: " + territory
         titre = tk.Label(self, text= tertext)
         titre.pack(side=tk.TOP)
-        self.show()
 
-    def buildable_tile(self, x, y, type, territory, ressources ):
+        self.bought = False
+        if territory == "neutral" and not self.bought :
+            self.acheter = tk.Button(self, text="buy", command = self.aquire)
+            self.acheter.pack(side=tk.TOP)
+        if territory == self.root.dmap.pf.players[self.root.dmap.current_player].name:
+            self.acheter = tk.Button(self, text="construct", command = self.construct)
+            self.acheter.pack(side=tk.TOP)
+
+        self.show()
+    
+    def construct(self):
+        self.root.dmap.construct(self.pos[0], self.pos[1])
+
+    def aquire(self):
+        self.root.dmap.aquire(self.pos[0], self.pos[1])
+
+    def buildable_tile(self, x, y, type, pos, ressources ):
         pass
 
-    def village_tile(self, x, y, territory):
+    def village_tile(self, village: vil.Village, pos, territory):
+        self.pos = pos
         titre = tk.Label(self, text="village")
         titre.pack(side=tk.TOP)
+        self.village = village
+
         tertext = "territory: " + territory
         titre = tk.Label(self, text= tertext)
         titre.pack(side=tk.TOP)
-        self.show()
 
-    def ressources_popup(root, rx, rh, x, y, type, prod, quantity):
-        pass
+        tertext = "food: " + str(village.food) + " + " + str(village.food_multiplier)
+        titre = tk.Label(self, text= tertext)
+        titre.pack(side=tk.TOP) 
+
+        tertext = "wood: " + str(village.wood) + " + " + str(village.wood_multiplier)
+        titre = tk.Label(self, text= tertext)
+        titre.pack(side=tk.TOP)
+
+        self.villagers = tk.Button(self, text="update", command = village.update)
+        self.villagers.pack(side=tk.TOP)
+
+        self.villagers = tk.Button(self, text="collect", command = lambda: self.root.dmap.collect(pos))
+        self.villagers.pack(side=tk.TOP)
+
+        self.villagers = tk.Button(self, text="villagers", command = self.villagers_start)
+        self.villagers.pack(side=tk.TOP)
+
+        
+
+        self.show()
+    
+    def error(self, msg):
+        message = tk.Label(self, text= msg, bg="red")
+        message.pack()
+        self.show()
+    
+    def villagers_start(self):
+        self.vil = Popup(self, self.size_x, self.size_y, self.x+self.size_x-50, self.y+self.size_y-50, 
+                         self.size_x-100, self.size_y-100)
+        village = self.village
+        self.vil.villagers(village.persons_count, village.housed, village.homeless)
+        self.vil.show()
+
+    def villagers(self, nb_vil, housed, homeless):
+        self.list = tk.Canvas(self, bg="white")
+        y = 10
+        for p in housed.values():
+            text1 = "housed // name: " + p.name + " age: " + str(p.age) + " expectancy: " + str(p.expectancy)
+            text2 = "mood: " + str(p.mood) + " wealth: " + str(p.wealth) + " fed: " + str(p.fed) + " food:" + str([p.food])
+            self.list.create_text(100, y, text= text1, fill="black")
+            self.list.create_text(100, y+25, text= text2, fill="black")
+            y+=50
+        for p in homeless.values():
+            text1 = "homeless // name: " + p.name + " age: " + str(p.age) + " expectancy: " + str(p.expectancy)
+            text2 = "mood: " + str(p.mood) + " wealth: " + str(p.wealth) + " fed: " + str(p.fed) + " food:" + str([p.food])
+            self.list.create_text(100, y, text= text1, fill="black")
+            self.list.create_text(100, y+25, text= text2, fill="black")
+            y+=50
+
+        self.scrollbar = tk.Scrollbar(self.list, command=self.list.yview)
+        self.list.configure(yscrollcommand=self.scrollbar.set)
+        self.list.pack(expand=True, fill = tk.BOTH, side=tk.RIGHT)
+        self.scrollbar.pack(side=tk.RIGHT)
+        tertext = str()
+
+    def pause_menu(self):
+        self.quit = tk.Button(self ,text= "Resume", height = 8, width = 50, command= self.root.destroy)
+        self.quit.pack(side=tk.TOP)
+        self.quit = tk.Button(self ,text= "Settings", height = 8, width = 50, command= self.root.destroy)
+        self.quit.pack(side=tk.TOP)
+        self.quit = tk.Button(self ,text= "Save", height = 8, width = 50, command= self.root.destroy)
+        self.quit.pack(side=tk.TOP)
+        self.quit = tk.Button(self ,text= "Save & Quit", height = 8, width = 50, command= self.root.destroy)
+        self.quit.pack(side=tk.TOP)
+        self.quit = tk.Button(self ,text= "Load", height = 8, width = 50, command= self.root.destroy)
+        self.quit.pack(side=tk.TOP)
+        self.quit = tk.Button(self ,text= "Main Menu", height = 8, width = 50, command= self.root.destroy)
+        self.quit.pack(side=tk.TOP)
+        self.quit = tk.Button(self ,text= "Quit", bg="red", height = 8, width = 50, command= self.root.destroy)
+        self.quit.pack(side=tk.TOP)
+    
+    def help(self, comment):
+        titre = tk.Label(self, text= comment)
+        titre.pack(side=tk.TOP)
+
+        self.villagers = tk.Button(self, text="next", command = self.root.next_help)
+        self.villagers.pack(side=tk.TOP)
+        self.show()
 
     def show(self):
         self.deiconify()
@@ -123,3 +222,11 @@ if __name__ == "__main__":
     spawn.pack()
     root.geometry("500x500+0+0")
     root.mainloop()
+
+
+
+
+
+
+
+

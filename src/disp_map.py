@@ -1,10 +1,9 @@
 import tkinter as tk
-from PIL import Image, ImageTk
-import os
 
 import disp_popup_factory as dpop
 import player_factory as pf
 import map as mp
+import village as vil
 
 PLAYER   = 0
 NEUTRAL  = 1
@@ -13,7 +12,7 @@ STRANGER = 3
 ENEMY    = 4
 
 class DMap(tk.Canvas):
-    def __init__(self, root, map, player_factory):
+    def __init__(self, root, map: mp.Map, player_factory: pf.Player_factory):
         tk.Canvas.__init__(self, root, background="black")
         self.root = root
 
@@ -24,8 +23,6 @@ class DMap(tk.Canvas):
         self.scroll_y = 100 * self.map.height
         self.configure(scrollregion=(0,0,self.scroll_x, self.scroll_y))
 
-        self.pack(expand=True, fill = tk.BOTH, side = tk.BOTTOM)
-
         self.tile_size = 100
         self.texture = ['lawn green','forest green', 'blue', 'grey']
         self.tile_name= ['plain', 'forest', 'lake', 'mountains']
@@ -33,13 +30,22 @@ class DMap(tk.Canvas):
 
         self.draw_tiles()
         self.draw_borders()
+
+        self.current_player = 4#TODO:faire ca bien
                 
         
         # move on the map with left click:
         self.pop = None
         self.bind("<ButtonPress-1>", self.scroll_start)
         self.bind("<B1-Motion>", self.scroll_move)
-    
+
+        self.village_keys = {}
+
+        for k in self.map.village_dict.keys():
+            self.village_keys[self.map.village_dict[k][0]] = k
+        #print(self.village_keys)
+
+
     def draw_tiles(self):
         village_pos = [self.map.village_dict[k][0] for k in self.map.village_dict.keys()]
         size = self.tile_size
@@ -51,20 +57,86 @@ class DMap(tk.Canvas):
                 y = xp * self.tile_size
                 x = yp * self.tile_size
                 territory = self.check_territory(xp, yp)
+                pos = str(xp) + "+" + str(yp)
                 if (xp, yp) in village_pos:
-                    print("village")
-                    emp = self.create_rectangle(x, y, x+size, y+size, fill="red",
-                                              tags= ("tile", "village", territory))
+                    #print("village")
+                    temp = self.create_rectangle(x, y, x+size, y+size, fill="red",
+                                              tags= ("tile", pos, "village", territory))
                 else:
                     temp = self.create_rectangle(x, y, x+size, y+size, fill=self.texture[tile//4],
-                                                tags= ("tile", territory))
+                                                tags= ("tile", pos, territory))
+    
+    def aquire(self,x,y):
+        if self.pf.players[self.current_player].ressources[0] < 50:
+            err = dpop.Popup(self.root, self.root.winfo_width(), self.root.winfo_height(),
+                                x*100, y*100, 300, 200)
+            err.error("not enough money")
+            self.pop.destroy()
+            return
+        self.pf.players[self.current_player].gain_territory([y,x,y,x])
+        self.pf.players[self.current_player].pay(50)
+        pos = str(y) + "+" + str(x)
+        temp = list(self.gettags(pos))
+        temp[2] = self.pf.players[self.current_player].name
+        temp = tuple(temp)
+        self.itemconfig(self.find_withtag(pos)[0], tag = temp)
+        self.pop.destroy()
+        self.root.update_ressources()
+        self.draw_borders()
+    
+    def construct(self,x,y):
+        #print("hey")
+        if self.pf.players[self.current_player].ressources[0] < 200 or (
+            self.pf.players[self.current_player].ressources[1] < 150
+            ) or self.pf.players[self.current_player].ressources[0] < 150:
+            err = dpop.Popup(self.root, self.root.winfo_width(), self.root.winfo_height(),
+                                x*100, y*100, 300, 200)
+            err.error("not enough ressources")
+            self.pop.destroy()
+            return
+        
+        self.map.village_dict[len(self.map.village_dict)] = ((y, x),self.current_player,
+                                                                vil.Village(self.map.get_all_neighbours(x,y)) ) 
+        self.map.village_dict[len(self.map.village_dict)-1][2].generate()
+        self.village_keys[(y,x)] = len(self.map.village_dict)-1
+        self.pf.players[self.current_player].pay(200)
+        self.pf.players[self.current_player].ressources[1] -= 150
+        self.pf.players[self.current_player].ressources[2] -= 150
+        self.pf.players[self.current_player].gain_territory([y-1,x-1,y+1,x+1])
+        pos = str(y) + "+" + str(x)
+        temp = list(self.gettags(pos))
+        temp = [temp[0], temp[1], "village", temp[2]]
+        temp = tuple(temp)
+        self.itemconfig(self.find_withtag(pos)[0], tag = temp, fill="red")
+        self.pop.destroy()
+        self.root.update_ressources()
+        self.draw_borders()
+        #print(self.village_keys)
+    
+    def collect(self, pos):
+        (x,y) = pos
+        pos = (y,x)
+        temp = self.map.village_dict[self.village_keys[pos]][2]
+
+        self.pf.players[self.current_player].ressources[0] += temp.money
+        self.pf.players[self.current_player].ressources[1] += temp.food
+        self.pf.players[self.current_player].ressources[2] += temp.wood
+
+        self.map.village_dict[self.village_keys[pos]][2].money -= temp.money
+        self.map.village_dict[self.village_keys[pos]][2].wood -= temp.wood
+        self.map.village_dict[self.village_keys[pos]][2].food -= temp.food
+        self.root.update_ressources()
+
+
+
     
     def draw_borders(self):
         for p in self.pf.players:
             blist = self.border_list(self.pf.players[p])
             for b in blist:
-                self.create_line(b[0]*self.tile_size, b[1]*self.tile_size, b[2]*self.tile_size, b[3]*self.tile_size,
+                id = self.create_line(b[0]*self.tile_size, b[1]*self.tile_size, b[2]*self.tile_size, b[3]*self.tile_size,
                                   fill = self.pf.player_colors[p], width = 8)
+                self.tag_raise(id)
 
     def check_territory(self, x, y):
         for p in self.pf.players.values():
@@ -128,8 +200,7 @@ class DMap(tk.Canvas):
             i += 1
 
         return blist
-
-    
+   
     def trim_borders(self, blist):
         """
         trim the border that overlaps
@@ -176,7 +247,7 @@ class DMap(tk.Canvas):
             self.pop.destroy()
         id = self.find_withtag("current")
         tags = self.gettags("current")
-        print(tags)
+        #print(tags)
         if "tile" in tags:
             x, y, dump1, dump2 = self.coords(id)
             x, y = int(x//100), int(y//100)
@@ -184,11 +255,11 @@ class DMap(tk.Canvas):
             if "village" in tags:
                 self.pop = dpop.Popup(self.root, self.root.winfo_width(), self.root.winfo_height(),
                                 event.x, event.y, 400, 600)
-                self.pop.village_tile(1,2,tags[2])
+                self.pop.village_tile(self.map.village_dict[self.village_keys[(y,x)]][2],(x,y),tags[3])
             else:
                 self.pop = dpop.Popup(self.root, self.root.winfo_width(), self.root.winfo_height(),
                                 event.x, event.y, 200, 300)
-                self.pop.natural_tile(self.tile_name[tile//4],4,tags[1])
+                self.pop.natural_tile(self.tile_name[tile//4],(x,y),tags[2])
             self.pop.bind("<FocusOut>", self.pop.quit)
                 
     

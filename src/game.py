@@ -8,10 +8,11 @@ import data_manager as dm
 
 class Game:
     def __init__(self, savefile):
-        self.data = dm.Data(savefile)
-        self.pf = self.data.pf
-        self.map = self.data.map
-        self.events = self.data.events
+        self.main_player = 4
+        self.data: dm.Data = dm.Data(savefile) 
+        self.pf: pf.Player_factory = self.data.pf 
+        self.map: map.Map = self.data.map 
+        self.events = self.data.events 
 
 
 if __name__ == "__main__":

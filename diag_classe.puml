@@ -1,0 +1,28 @@
+@startuml
+churchman o-- person 
+commoner o-- person 
+data_manager *-- events 
+data_manager *-- map 
+data_manager *-- player_factory 
+disp_main_menu *-- disp_scene 
+disp_main_menu *-- game 
+disp_map *-- disp_popup_factory 
+disp_map *-- map 
+disp_map *-- player_factory 
+disp_map *-- village 
+disp_popup_factory *-- village 
+disp_scene *-- disp_map 
+disp_scene *-- disp_popup_factory 
+disp_scene *-- game 
+game *-- data_manager 
+game *-- events 
+game *-- map 
+game *-- player_factory 
+map *-- village 
+noble o-- person 
+player_factory *-- player 
+village *-- churchman 
+village *-- noble 
+village *-- commoner 
+
+@enduml
