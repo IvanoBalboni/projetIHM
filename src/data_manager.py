@@ -9,7 +9,10 @@ class Data:
         self.map    = map.Map(727, 5, 100, 30)
         self.map.generate()
         self.events = events.Events()
-        self.pf     = pf.Player_factory([self.map.village_dict[i][0] for i in range(5)], [0, 1, 2, 3, 4])
+        self.pf     = pf.Player_factory([self.map.village_dict[i][0] for i in range(5)],
+                                         [0, 1, 2, 3, 4],
+                                         ["alice", "bob", "charlie", "Dave", "Eve"],
+                                         ["blue4", "IndianRed4", "purple4", "cyan", "brown4"])
         pass
     
     def save(self):

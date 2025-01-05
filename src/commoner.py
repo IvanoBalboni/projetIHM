@@ -16,7 +16,7 @@ class Commoner(per.Person):
             self.prod = 4
 
     def salary(self, bonus, taxes):
-        self.wealth += (self.prod*bonus)*(1-tax[self.rank])
+        self.wealth += (self.prod*bonus)*(1-taxes[self.rank])
      
     def updtate(self):
         per.Person.update(self)

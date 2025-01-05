@@ -4,7 +4,7 @@ class Player():
     A vassal bot is still a player but his actions will be reduced
     '''
 
-    def __init__(self, ressources, territory, role):
+    def __init__(self, ressources, territory, name, role):
         '''
         ressources > [money, food, wood]
         territory  > [(x1,y1,x2,y2)]
@@ -14,6 +14,7 @@ class Player():
         self.territory  = []
         self.territory.append( territory.copy() )
         self.role = role
+        self.name = name
 
 
     def bot(self):
@@ -28,9 +29,12 @@ class Player():
         would have made.
         '''
     
+    def gain_territory(self, territory):
+        self.territory.append(territory)
+    
     def __str__(self):
         ressources = "money: " + str(self.ressources[0]) + " food: " + str(self.ressources[1]) + " wood: " + str(self.ressources[2])
-        out = ressources + " type: " + self.role
+        out = ressources + " name: "+ self.name + " type: " + self.role
         return out
 
 if __name__ == "__main__":

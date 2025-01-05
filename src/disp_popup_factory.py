@@ -27,10 +27,13 @@ class Popup(tk.Toplevel):
 
         geometry = str(size_x) + "x" + str(size_y) + "+"
         # place the popup to the left if not enough place to the right
-        x = x - size_x if (x + size_x) > rw else x
+        self.x = x - size_x if (x + size_x) > rw else x
         # place the popup above if not enough place bellow
-        y = y - size_y if (y + size_y) > rh else y
-        geometry = geometry + str(x) + "+" + str(y)
+        self.y = y - size_y if (y + size_y) > rh else y
+
+        
+
+        geometry = geometry + str(self.x) + "+" + str(self.y)#position a avoir de la popup
 
         self.geometry(geometry)
 
@@ -45,17 +48,19 @@ class Popup(tk.Toplevel):
 
         self.exit_button.pack(side=tk.TOP, anchor = tk.NE)
 
-        self.focus = False
-        self.type = "ephemeral"
+        self.drag = False
 
         #self.bind("<Leave>", self.switch_focus)
         #self.bind("<Enter>", self.switch_focus)
-        #self.bind("<ButtonPress-1>", self.click_out)
-        #self.bind("<ButtonPress-3>", self.click_out)
+        self.mpos = (0, 0)
+
+        self.bind("<1>", self.click)
+        self.bind("<ButtonRelease-1>", self.drop)
+        self.bind("<B1-Motion>", self.move)
 
 
 
-    def natural_tile(self, x, y, type, territory, ressources):
+    def natural_tile(self, type, ressources, territory):
         """
         ephemeral
         displays the type, territory it belongs to, and ressources of the tile.
@@ -63,14 +68,19 @@ class Popup(tk.Toplevel):
         """
         titre = tk.Label(self, text= type)
         titre.pack(side=tk.TOP)
+        tertext = "territory: " + territory
+        titre = tk.Label(self, text= tertext)
+        titre.pack(side=tk.TOP)
         self.show()
-        pass
 
-    def buildable_tile(self, x, y, type, territory, ressources, ):
+    def buildable_tile(self, x, y, type, territory, ressources ):
         pass
 
     def village_tile(self, x, y, territory):
         titre = tk.Label(self, text="village")
+        titre.pack(side=tk.TOP)
+        tertext = "territory: " + territory
+        titre = tk.Label(self, text= tertext)
         titre.pack(side=tk.TOP)
         self.show()
 
@@ -83,13 +93,20 @@ class Popup(tk.Toplevel):
     def hide(self):
         self.withdraw()
     
-    def switch_focus(self, e):
-        self.focus = not self.focus
+    def drop(self, e):
+        self.drag = False
+
+    def click(self, e):
+        self.drag = True
+        self.mpos = (e.x, e.y)
     
-    def click_out(self, e):
-        if not self.focus:
-            if self.type == "ephemeral":
-                self.destroy()
+    def move(self, e):
+        if self.drag:
+            x,y = self.x, self.y
+            self.x = self.x + e.x - self.mpos[0]
+            self.y = self.y + e.y - self.mpos[1]
+            geometry = "+" + str(self.x) + "+" + str(self.y)
+            self.geometry(geometry)
 
 
 

@@ -25,7 +25,7 @@ class Scene(tk.Frame):
         self.pop = dp.Popup(self, 2500, 1900, 50, 50, 100, 100)
 
         self.exit_button = tk.Button(self, image=self.cancel,
-            height = 50, width = 50, command = self.root.destroy)
+            height = 50, width = 50, compound="right", command = self.root.destroy)
         
         self.money_button = tk.Button(self, text = "money", image=self.coin,
             height = 50, width = 150, compound="left", command = self.pop.show)

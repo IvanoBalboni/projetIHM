@@ -1,7 +1,7 @@
 import player
 
 class Player_factory:
-    def __init__(self, spawn_list, player_list):
+    def __init__(self, spawn_list, player_list, player_names, player_colors):
         '''
         spawn_list  = (x,y) pos village 1
         player_list = liste de int (0 = joueur, 1 = bot)
@@ -12,7 +12,10 @@ class Player_factory:
         for i in player_list:
             x = spawn_list[n][0]
             y = spawn_list[n][1]
-            self.players[n] = player.Player([100, 50, 50], [x-1, y-1, x+1, y+1], i)
+            self.player_colors = player_colors
+            self.players[n] = player.Player([100, 50, 50], [x-1, y-1, x+1, y+1], player_names[i], i)
+            self.players[n].gain_territory([x,y, x+3, y+3])
+            self.players[n].gain_territory([x+2,y-3, x+3, y])
             n += 1
     
     def play():
@@ -20,5 +23,5 @@ class Player_factory:
         pass
 
 if __name__ == "__main__":
-    test = Player_factory([(2,2),(10,10),(15,5)], [0, 1, 1])
+    test = Player_factory([(2,2),(10,10),(15,5)], [0, 1, 1], ["bob", "toto", "titi"], ["red", "green", "blue"])
     print(test.players)
